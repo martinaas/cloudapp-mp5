@@ -26,12 +26,16 @@ public final class RandomForestMP {
         }
     }
 
-    private static class ParseTitle implements Function<String, LabeledPoint> {
+    private static class DataToPoint implements Function<String, LabeledPoint> {
         private static final Pattern SPACE = Pattern.compile(",");
-
-        public LabeledPoint call(String line) {
+        public LabeledPoint call(String line) throws Exception {
             String[] tok = SPACE.split(line);
-            return LabeledPoint.parse(tok[0]);
+            double label = Double.parseDouble(tok[tok.length-1]);
+            double[] point = new double[tok.length-1];
+            for (int i = 0; i < tok.length - 1; ++i) {
+                point[i] = Double.parseDouble(tok[i]);
+            }
+            return new LabeledPoint(label, Vectors.dense(point));
         }
     }
 
@@ -60,7 +64,7 @@ public final class RandomForestMP {
         Integer seed = 12345;
 
 		// TODO
-        JavaRDD<LabeledPoint> train = sc.textFile(training_data_path).map(new ParseTitle());
+        JavaRDD<LabeledPoint> train = sc.textFile(training_data_path).map(new DataToPoint());
         JavaRDD<Vector> test = sc.textFile(test_data_path).map(new ParseVector());
 
         model = RandomForest.trainClassifier(train, numClasses,
