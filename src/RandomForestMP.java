@@ -7,7 +7,6 @@ import org.apache.spark.mllib.linalg.Vectors;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.mllib.tree.RandomForest;
 import org.apache.spark.mllib.tree.model.RandomForestModel;
-import scala.collection.immutable.Map;
 
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -64,8 +63,8 @@ public final class RandomForestMP {
         JavaRDD<LabeledPoint> train = sc.textFile(training_data_path).map(new ParseTitle());
         JavaRDD<Vector> test = sc.textFile(test_data_path).map(new ParseVector());
 
-        model = RandomForest.trainClassifier(train.rdd(), numClasses,
-                (Map<Object, Object>) categoricalFeaturesInfo, numTrees, featureSubsetStrategy, impurity, maxDepth, maxBins,
+        model = RandomForest.trainClassifier(train, numClasses,
+                categoricalFeaturesInfo, numTrees, featureSubsetStrategy, impurity, maxDepth, maxBins,
                 seed);
 
         JavaRDD<LabeledPoint> results = test.map(new Function<Vector, LabeledPoint>() {
